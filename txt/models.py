@@ -36,6 +36,7 @@ class TXT(db.Model):
     title = db.Column(db.String(100))
     author = db.Column(db.String(50))
     url = db.Column(db.String(100))
+    curr = db.Column(db.Integer)
 
     def __init__(self, txtname, author, room) -> None:
         self.title = txtname

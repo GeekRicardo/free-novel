@@ -69,6 +69,7 @@
                         <th>#</th>
                         <th>名称</th>
                         <th>作者</th>
+                        <th>当前</th>
                         <!-- <th>Username</th> -->
                     </tr>
                 </thead>
@@ -79,6 +80,7 @@
                             <th scope="row">{{txt.id}}</th>
                             <td>{{txt.title}}</td>
                             <td>{{txt.author}}</td>
+                            <td><a href='/content/{{txt.url}}/{{txt.curr}}'>{{txt.curr}}</a></td>
                             <td><a href="/deltxt/{{txt.id}}"><button class='btn btn-error'>删除</button></a></td>
                             <!-- <td>@mdo</td> -->
                         </tr>

@@ -32,7 +32,8 @@ def index():
     parameters:
 
     """
-    txts = db.session.query(TXT.id, TXT.title, TXT.author)
+    txts = db.session.query(TXT.id, TXT.title, TXT.author, TXT.curr, TXT.url)
+    # curr = getcatabyspider()
     return render_template('index.html', txts = txts)
 
 
@@ -103,7 +104,7 @@ def searchTxt():
 
 @main.route('/catalog/<room>', endpoint='getcatalog', methods=['GET', 'POST'])
 def getcatalog(room):
-    txt = db.session.query(TXT).filter_by(id=room).first()
+    txt = db.session.query(TXT).filter_by(url=room).first()
     if txt:
         catalogs = db.session.query(Catalog.room, Catalog.title).filter_by(txtid=room)
         # history = redis.get(str(room))
@@ -160,10 +161,10 @@ def getcontent(room, chapterid):
     currc_index = [i[1] for i in catalogs].index(chapterid)
 
     # 更新进度
-    # if chapter:
-    #     oldchapter = redis.get(str(room)) or -1
-    #     if int(oldchapter) < chapterid:
-    #         redis.set(str(room), chapterid)
+    if chapter:
+        txt = db.session.query(TXT).filter_by(url=room).first()
+        txt.curr = chapterid
+        db.session.commit()
 
     if request.method == 'POST':
         if not chapter[1]:
