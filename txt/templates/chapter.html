@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ chapter.title }}</title>
+    <link rel="shortcut icon " type="images/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/layui.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <!-- <script src="https://cdn.bootcss.com/clipboard.js/2.0.4/clipboard.min.js"></script> -->
+    <script src="/static/js/chapter.js"></script>
+    <link rel='stylesheet' href="/static/css/chapter.css"></link>
+
+</head>
+
+<body>
+    <div class=" col-xs-4 col-xs-offset-4 mainoper">
+        <center>
+            <span id='title' style='font-size: 8px;color:#faa49c'>{{chapter.title}}</span>
+            <br>
+            <a href="/" title="">
+                <button class="btn" style="border:1px dashed #4CAF50;margin-left: 5px;">
+                    <img src="/static/imgs/home.png" width="18px">
+                </button>
+            </a>
+            <a href="/catalog/{{chapter.txtid}}" title="">
+                <button class="btn" style="border:1px dashed #008CBA">
+                    <img src="/static/imgs/catalog.png" width="18px" alt="">
+                </button>
+            </a>
+            <button class='btn' style="border:1px dashed #c3c3c3;" id='turnday' day={{isDay}}>
+                <img src="/static/imgs/dark.png" width="18px" id='dayimg' alt="">
+            </button>
+            <button style="border:1px dashed #676767;" id='play' class='btn'>
+                <i id='scroll' play='{{play}}' class="layui-icon layui-icon-play" style="color:#8c1aff"></i>
+            </button>
+            <button style="border:1px dashed #f44336;" class='btn' id='fontdown'><span class="glyphicon glyphicon-minus-sign"></span></button>
+            <button style="border:1px dashed #cc6600;" class='btn' id='fontup'><span class="glyphicon glyphicon-plus-sign"></span></button>
+            <a href="/content/{{chapter.txtid}}/{{prec[1]}}" id='preC'>
+                <button style="border:1px dashed #555555;" class='btn' id='prebtn'>
+                    <i id='scroll' play='{{play}}' class="layui-icon layui-icon-prev" style="color:#ff9980"></i>
+                </button>
+            </a>
+            <a href="/content/{{chapter.txtid}}/{{nextc[1]}}" id='next'>
+                <button style="border:1px dashed #555555;" class='btn' id='nextbtn'>
+                    <i id='scroll' play='{{play}}' class="layui-icon layui-icon-next" style="color:#ff661a"></i>
+                </button>
+            </a>
+        </center>
+
+    </div>
+    <div class="jumbotron col-lg-6 col-md-8 col-md-offset-2 col-lg-offset-3">
+        <input type="hidden" id='currid' value="{{chapter.id}}">
+        <input type="hidden" id='isFirst' value="true">
+        <h3>{{ chapter.title }}</h3>
+        <!-- <canvas id='{{chapter.id}}' class='notranslate text' style='font-size:{{fontsize}}px;height: 600px;'>
+            </canvas>
+        -->
+        <div class="content notranslate">
+            {% for line in chapter.content %}
+                {%if line.strip() %}
+                <p style="text-indent:2em">{{line}}</p>
+                {%endif%}
+            {% endfor %}
+        </div>
+
+    </div>
+    <center class="waitnextchapter" hidden="hidden">
+        <!-- <i id='scroll' play='{{play}}' width="30px" class="layui-icon layui-icon-loading"></i> -->
+        <img src="/static/imgs/loading.gif" alt="">
+    </center>
+    <div class="context mainoper"><img src="/static/imgs/context.png" width="40px"></div>
+    <div class="catalog" style="display:none">
+        <!-- <div class="catalogtop"></div> -->
+        <ul class="list-group"></ul>
+    </div>
+</body>
+
+</html>

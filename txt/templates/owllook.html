@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="keywords" content="owllook - 免费小说 - 免费小说阅读 - 免费无广告小说阅读 - 免费小说搜索 - 免费全本小说 - 无广告 - 免费小说 - 小说搜索引擎">
+    <meta name="description"
+        content="owllook - 小说阅读 - 小说搜索引擎 - 免费小说 - owllook只提供检索服务 - 给你最好的搜索服务 - 最清新简洁的阅读体验 - 无广告 - 页面清爽 - 免费全本小说">
+    <meta name="copyright" content="本页版权归owllook.net所有 All Rights Reserved">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="bookmark" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/main.css">
+
+    <title>{{maininfo['title']}} - owllook</title>
+    <link rel="stylesheet" href="/static/css/chapter.css">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+
+
+
+    <div class="container all-chapter">
+        <div class="box_con">
+            <div id="maininfo">
+                <div id="fmimg"><img alt="伏天氏" src="{{maininfo['img']}}">
+                </div>
+                <div id="info">
+                    <h1>{{maininfo['title']}}</h1>
+                    <p>{{maininfo['author']}} </p>
+                    <script>
+                        $(function(){
+                            $('#download').click(function (){
+                                $.ajax({
+                                    url:'/download/{{room}}',
+                                    type:'GET',
+                                    success: function(data){
+                                        $('#download').replaceWith('<div id="processbar" style="height:10px;width:500px;background-color:white;"><div id="process" style="height:10px;width:0;background-color:#5900b3;"></div></div>');
+                                        timer = setInterval(worker, 1000);
+                                        function worker() {
+                                            $.get('/getprocess', function(data) {
+                                                console.log(data);
+                                                if (data.process > 0 && data.process < 1) {
+                                                    $('#process').css('width', data.process*500+'px');
+                                                }else if(data.process >= 1){
+                                                    clearInterval(timer);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            });
+                        });
+
+                    </script>
+                    <p><a href="javascript:void(0);" id='download'>缓存至服务器</a></p>
+
+                    <!-- <p>最新章节：<a
+                            href=""
+                            target="_blank">第1937章 册封</a></p> -->
+
+                </div>
+                <div id="intro">
+                    <p>
+                        <font size="3">小说{{title}}的简介：</font>
+                    </p>
+                    <p>东方神州，有人皇立道统，有圣贤宗门传道，有诸侯雄踞一方王国，诸强林立，神州动乱千万载，执此之时，一代天骄叶青帝及东凰大帝横空出世，斩人皇，驭圣贤，诸侯臣服，东方神州一统！<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;然，叶青帝忽然暴毙，世间雕像尽皆被毁，于世间除名，沦为禁忌；从此神州唯东凰大帝独尊！<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;十五年后，东海青州城，一名为叶伏天的少年，开启了他的传奇之路…
+                    </p>
+                    <p>&nbsp;&nbsp;&nbsp; 各位书友要是觉得《伏天氏》还不错的话请不要忘记向您QQ群和微博里的朋友推荐哦！</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="box_con">
+            <div id="list">
+                <dl>
+                    {%for c in catalogs %}
+                    <dd><a href="/content/{{room}}/{{c[1]}}" title="{{c[0]}}" target="_blank">{{c[0]}}</a></dd>
+                    {%endfor%}
+                </dl>
+            </div>
+        </div>
+        <div class="move">
+            <div class="move_up">
+                <span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span>
+            </div>
+            <div class="move_down">
+                <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="loginModalLabel">登录</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="owllook_user" class="col-xs-3 col-sm-2 control-label">用户:</label>
+                            <div class="col-xs-9 col-sm-10">
+                                <input type="email" class="form-control" id="owllook_user" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="owllook_pass" class="col-xs-3 col-sm-2 control-label">密码:</label>
+                            <div class="col-xs-9 col-sm-10">
+                                <input type="password" class="form-control" id="owllook_pass" placeholder="密码">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <a href="https://owllook2.yueing.org/register"><button type="button"
+                            class="btn btn-default pull-left">注册</button></a>
+                    <button type="submit" class="btn btn-primary" id="owllook_login">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="message">
+                <div class="left">
+                    <span>
+                        <a target="" href="/"><strong>首页</strong></a>
+                    </span>
+                </div>
+                <div class="right">
+                    <span>
+
+                    </span>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/static/js/main.js"></script>
+
+    <!-- <script src="/static/js/list.js"></script> -->
+
+
+</body>
+
+</html>

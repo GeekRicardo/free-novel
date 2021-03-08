@@ -1,0 +1,418 @@
+$(function () {
+    breakDebugger()
+    var speed;
+    if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+        //移动端
+        speed = 20;
+    } else {
+        //pc端
+        speed = 40;
+    }
+    //禁止右键菜单
+    document.oncontextmenu = function () {
+        event.returnValue = false;
+    };
+
+    var isLoad = false;
+    var isUpdateRead = false;
+    setDayStyle('{{isDay}}');
+    var timer;
+    setTimeout(autoscroll, 3000);
+    $(window).scroll(function () {
+        getNextChapter();
+        isUpdateRead = true;
+    });
+
+    var readTimer;
+    readTimer = setInterval(getCurrRead, 5000);
+    //上载当前阅读进度
+    function getCurrRead(){
+        var currpos = getCurrReadP();
+        if(isUpdateRead && currpos){
+            var chapter = window.location.href.split('/').reverse()[0];
+            $.ajax({
+                url: '/currread/{{chapter.txtid}}/' + chapter + '/' + currpos,
+                type: 'POST',
+                success: function(data){
+                    isUpdateRead = false;
+                }
+            });
+        }
+    }
+
+    //获取当前阅读位置p标签的下标
+    function getCurrReadP(){
+        var lines = $('.content:last > p');
+        for(var i = 0; i < lines.length;i++){
+            if($(lines[i]).offset().top > $(window).scrollTop() && $(lines[i]).offset().top <= $(window).height() / 2 + $(window).scrollTop()){
+                //p进入用户上半边视野
+                return i;
+            }
+        }
+    }
+
+    //滚动最后自动加载下一章
+    function getNextChapter(){
+        var scrollTop = $(window).scrollTop();
+        var scrollHeight = $(document).height();
+        var windowHeight = $(window).height();
+        var restHeight = scrollHeight - scrollTop - windowHeight;
+        if (restHeight <= 100 && isLoad == false) {
+            $('.waitnextchapter').show();
+            var currid = $('#currid');
+            var curr = parseInt(currid.val());
+            isLoad = true;
+            getChapter(curr+1);
+        }else if(restHeight > 100 && isLoad == true){
+            isLoad = false;
+        }
+    }
+
+    //getChapter({{chapter.id}});
+    //获取某一章
+    function getChapter(curr){
+        $.ajax({
+            url: '/content/{{chapter.txtid}}/' + curr ,
+            type: 'POST',
+            success: function(data){
+                if(data.success == 0){
+                    document.title = data.title;
+                    var currid = $('#currid');
+                    var lastcontent = $($('.content:last')[0]);
+                    var jumbotron = $($('.jumbotron')[0]);
+                    var nextcontent;
+                    /*if($('#isFirst').val() != 'true'){
+                    }else{
+                        nextcontent = lastcontent;
+                        $('#isFirst').val('false');
+                    }*/
+                    nextcontent = $('<div class="content notranslate"></div>');
+                    var cssfontSize = $('.content:last p').css('font-size');
+                    isDay = $('#turnday').attr('day');
+                    jumbotron.append($('<h3>'+data.title+'</h3>'));
+                    jumbotron.append(nextcontent);
+                    for(var i = 0; i < data.content.length; i++){
+                        var newp = $('<p>'+data.content[i]+'</p>');
+                        newp.css('font-size', cssfontSize);
+                        nextcontent.append(newp);
+                    }
+                    setDayStyle(isDay);
+                    /*var ctx = nextcontent.getContext('2d');
+                    ctx.fillStyle = "black";
+                    ctx.font = "8px '微软雅黑'";
+                    ctx.textAlign = "left";
+                    ctx.textBaseline = 'top';
+                    var lineHeight = 0;
+                    for(var i = 0; i < data.content.length; i++){
+                        if(data.content[i] != ''){
+                            lineHeight = ctx.wrapText(data.content[i], 0, lineHeight);
+                        }
+                    }*/
+
+
+                    //修改下一章按钮链接
+                    var nexta = $('#next');
+                    $('#preC').attr('href', '/content/{{chapter.txtid}}/' + curr);
+                    nexta.attr('href', '/content/{{chapter.txtid}}/' + (curr + 1));
+                    currid.val(curr)
+                    //修改地址栏
+                    var stateObject = {};
+                    var title = data.title;
+                    $('#title').text(data.title);
+                    var newUrl = "/content/{{chapter.txtid}}/" + (curr + 1);//修改从项目名后开始
+                    history.pushState(stateObject,title,newUrl);
+                }
+                $('.waitnextchapter').hide();
+            }
+        })
+    }
+
+    $('#turnday').click(function () {
+        isDay = $('#turnday').attr('day');
+        if(isDay == 'day'){
+            isDay = 'night';
+        }else{
+            isDay = 'day';
+        }
+        setDayStyle(isDay);
+    });
+
+    $('#fontup').click(function () {
+        var cssfontSize = $('.content:last p').css('font-size');
+        var unit = cssfontSize.slice(-2);
+        var fontSize = parseFloat(cssfontSize);
+        $('.content:last p').css('font-size', (fontSize + 1) + unit);
+        setFontsize2Base(fontSize + 1);
+    })
+
+    $('#fontdown').click(function () {
+        var cssfontSize = $('.content:last p').css('font-size');
+        var unit = cssfontSize.slice(-2);
+        var fontSize = parseFloat(cssfontSize);
+        $('.content:last p').css('font-size', (fontSize - 1) + unit);
+        setFontsize2Base(fontSize - 1);
+    })
+
+    function setFontsize2Base(size) {
+        $.ajax({
+            url: '/setfont/' + size,
+            method: 'GET',
+        })
+    }
+
+    //将颜色模式汇报至base
+    function setDay2Base(isDay) {
+        $.ajax({
+            url: '/setDay/' + isDay,
+            type: 'GET'
+        });
+    }
+
+    //设置颜色模式
+    function setDayStyle(isDay) {
+        if (isDay == 'night') {
+            //切换成黑夜模式
+            $("html, body").css("backgroundColor", "#17181a");
+            $(".jumbotron").css("backgroundColor", "#17181a");
+            $(".mainoper").css("backgroundColor", "#0d0d0d");
+            $(".content").css("backgroundColor", "#1f2022");
+            $(".content").css("color", "#cbced3");
+            if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+                $(".content").css("backgroundColor", "#030303");
+                $(".content").css("color", "#a6a6a6");
+            }
+            $('.fontsize').css('color', '#939392');
+            $('#turnday').css('background-color', '#e7e7e7');
+            $('#turnday').css('color', 'black');
+            $('#turnday').attr('day', 'night');
+            $('#dayimg').attr('src', '/static/imgs/day.png');
+            setDay2Base('night');
+        } else if (isDay == 'day') {
+            //切换成白天模式
+            $("html, body").css("backgroundColor", "#bfbfbf");
+            $(".jumbotron").css("backgroundColor", "#f2f2f2");
+            $(".mainoper").css("backgroundColor", "#f2f2f2");
+            $(".content").css("backgroundColor", "#d9d9d9");
+            $(".content").css("color", "black");
+            $('.fontsize').css('color', 'black');
+            $('#turnday').attr('day', 'day');
+            $('#turnday').css('background-color', '#555555');
+            $('#turnday').css('color', '#939392');
+            $('#dayimg').attr('src', '/static/imgs/dark.png');
+            setDay2Base('day');
+        }
+    }
+
+    $('#toTop').click(function () {
+        $('html,body').animate({ scrollTop: 0 }, 500);
+    });
+
+    function scroller() {
+        //  自动滚动
+        if (true) {
+            yScroll = document.documentElement.scrollTop;
+            xScroll = document.documentElement.scrollLeft;
+            position = yScroll + 1;
+            scroll(xScroll, position);
+        }
+    }
+
+    //自动播放
+    $('#play').click(function () {
+        autoscroll();
+    });
+
+    document.addEventListener("touchmove", function (e) {
+        var icon = $('#scroll');
+        icon.removeClass('layui-icon-radio');
+        icon.addClass('layui-icon-circle-dot');
+        clearInterval(timer);
+    }, false);
+
+    document.addEventListener("touchend", function (e) {
+        var icon = $('#scroll');
+        if (icon.attr('play') == 'played') {
+            icon.removeClass('layui-icon-play');
+            icon.addClass('layui-icon-radio');
+            icon.css('color', '#ff5500');
+            clearInterval(timer);
+            timer = setInterval(scroller, 20);
+        } else {
+        }
+    }, false);
+
+    //网页切换到前台
+    $(window).focus(function() {
+        var icon = $('#scroll');
+        if (icon.attr('play') == 'played' && timer) {
+            clearInterval(timer);
+            timer = setInterval(scroller, speed);
+        }
+        updateRead();
+        //alert('切换到前台');
+        //readTimer = setInterval(getCurrRead, 3000);
+
+    });
+    //网页切换到后台
+    $(window).blur(function() {
+        //alert('hou台');
+        clearInterval(timer);
+        //clearInterval(readTimer);
+    });
+
+    //同步阅读进度
+    //updateRead();
+    function updateRead(){
+        if($($('.content:last>p')[0]).offset().top <= $(window).height() + $(window).scrollTop()){
+            var chapter = window.location.href.split('/').reverse()[0];
+            $.ajax({
+                url: '/getcurrread/{{chapter.txtid}}',
+                type: 'POST',
+                success: function(data){
+                    if(data.chapter > chapter){
+                        getChapter(data.chapter);
+                        var currline = $($('.content:last>p')[data.position]);
+                        currline.append($('<a id="currread"></a>'));
+                        $("html,body").animate({scrollTop:$("#currread").offset().top},10);
+                    }else if(data.chapter == chapter){
+                        if(data.position > 10){
+                            if(data.position - getCurrReadP() > 2){
+                                var currline = $($('.content:last>p')[data.position]);
+                                currline.append($('<a id="currread"></a>'));
+                                $("html,body").animate({scrollTop:$("#currread").offset().top},10);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    $('.content').click(function(event) {
+        $(".catalog").hide();
+    });
+    $('.catalog').click(function(e){
+        //取消点击关闭事件冒泡
+        e.stopPropagation();
+    });
+
+    //加载目录
+    $('.context').click(function(e){
+        //取消点击关闭事件冒泡
+        e.stopPropagation();
+        let that = $('.catalog');
+        if(that.css("display")=="none"){
+            if($('.catalog>ul li').length ==0){
+                $.ajax({
+                    url: '/catalog/{{chapter.txtid}}',
+                    type: 'POST',
+                    success: function(data){
+                        var ul = $($('.catalog>ul')[0]);
+                        ul.find("li").remove();
+                        for(var i=0; i<data.catalogs.length;i++){
+                            var li = '<a href="/content/{{chapter.txtid}}/' + data.catalogs[i][0] + '"><li class="list-group-item" style="background-color:black">' + data.catalogs[i][1] + '</li></a>';
+                            if(data.his == data.catalogs[i][0]){
+                                li = '<a id="curr"><li class="list-group-item  active">' + data.catalogs[i][1] + '</li></a>';
+                            }
+                            ul.append($(li));
+                        }
+                        that.show();
+                        $(".catalog").animate({scrollTop:$("#curr").offset().top - $(".catalog").offset().top + $(".catalog").scrollTop()},100)
+                    }
+                });
+            }else{
+                that.show();
+            }
+
+        }else{
+            that.hide();
+        }
+    });
+
+    //移动端禁止双指缩放
+    document.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+    });
+    //设置自动滚动按钮样式以及发送至后台
+    function autoscroll() {
+        var icon = $('#scroll');
+        if (icon.attr('play') == 'stop') {
+            icon.removeClass('layui-icon-play');
+            icon.addClass('layui-icon-radio');
+            icon.attr('play', 'played');
+            icon.css('color', '#ff3333');
+            clearInterval(timer);
+            timer = setInterval(scroller, speed);
+            $.ajax({
+                url: '/setScroll/stop',
+                type: 'GET'
+            });
+        } else if (icon.attr('play') == 'played') {
+            icon.removeClass('layui-icon-radio');
+            icon.addClass('layui-icon-play');
+            icon.attr('play', 'stop');
+            icon.css('color', '#8c1aff');
+            clearInterval(timer);
+            $.ajax({
+                url: '/setScroll/played',
+                type: 'GET'
+            });
+        }
+
+    }
+
+
+    CanvasRenderingContext2D.prototype.wrapText = function (text, x, y, maxWidth, lineHeight) {
+        if (typeof text != 'string' || typeof x != 'number' || typeof y != 'number') {
+            return;
+        }
+
+        var context = this;
+        var canvas = context.canvas;
+
+        if (typeof maxWidth == 'undefined') {
+            maxWidth = (canvas && canvas.width) || 300;
+        }
+        if (typeof lineHeight == 'undefined') {
+            lineHeight = (canvas && parseInt(window.getComputedStyle(canvas).lineHeight)) || parseInt(window.getComputedStyle(document.body).lineHeight);
+        }
+
+        // 字符分隔为数组
+        var arrText = text.split('');
+        var line = '';
+
+        for (var n = 0; n < arrText.length; n++) {
+            var testLine = line + arrText[n];
+            var metrics = context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = arrText[n];
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
+        return y+lineHeight
+    };
+
+});
+
+//禁止调试
+function checkDebugger(){
+    const d=new Date();
+    debugger;
+    const dur=Date.now()-d;
+    if(dur<5){
+        //5ms内打断点
+        return false;
+    }else{
+        return true;
+    }
+}
+function breakDebugger(){
+    if(checkDebugger()){
+        breakDebugger();
+    }
+}

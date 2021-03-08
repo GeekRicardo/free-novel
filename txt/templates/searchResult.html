@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+    <head>
+        <title>{{keyword}} 的搜索结果</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, user-scalable=0">
+        <link rel="shortcut icon " type="images/x-icon" href="/static/favicon.ico">
+        <link rel="stylesheet" href="/static/css/layui.css">
+        <link rel="stylesheet" href="/static/css/bootstrap.css">
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+            a,a:link,a:visited,a:hover,a:active{
+                text-decoration: none;
+                color: rgb(22, 21, 21);
+            }
+            .container {
+                /*width: 100%;
+                height: 100%;*/
+                padding: 10px;
+            }
+            .result-box {
+                height: 150px;
+                width: 90%;
+            }
+            .result-item {
+                margin: 15px;
+                border-radius: 5px;
+                -webkit-box-shadow: #666 0px 0px 10px;
+                -moz-box-shadow: #666 0px 0px 10px;
+                box-shadow: #666 0px 0px 10px;
+                background-color: #c0c0c0;
+                padding: 5px;
+            }
+            .result-item-tag {
+                display: block;
+            }
+            .odd {
+                background-color: #808080;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="result-box col-lg-6 col-md-8 col-md-offset-1 col-lg-offset-1">
+                {%for r in results%}
+                <a href="/getcatalog/{{r['url']}}?txtname={{r['title']}}&author={{r['author']}}">
+                    <div class="result-item {%if loop.index is odd%}odd{%endif%}">
+                        <h3>{{r['title']}}</h3>
+                        <span class="result-item-tag">作者：{{r['author']}}</span>
+                        <span class="result-item-tag">最新更新：{{r['lastc']}}</span>
+                        <span class="result-item-tag">更新时间：{{r['updatetime']}}</span>
+                        <span class="result-item-tag">简介：{{r['desc']}}</span>
+                    </div>
+                </a>
+                {%endfor%}
+            </div>
+        </div>
+    </body>
+</html>
