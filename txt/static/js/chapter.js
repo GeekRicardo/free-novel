@@ -36,9 +36,13 @@ $(function(){
     $(window).scroll(function () {
         getNextChapter();
     })
+    function getNextChapterUrl(){
+	return $('#next')[0].href.split('/')[5]
+    }
 
     //滚动加载下一章
     function getNextChapter(){
+	var nextc = getNextChapterUrl();
         var scrollTop = $(window).scrollTop();
         var scrollHeight = $(document).height();
         var windowHeight = $(window).height();
@@ -48,9 +52,9 @@ $(function(){
             waitnextchapter.show();
             var currid = $('#currid');
             var currchapterid = parseInt(currid.val());
-            var isNext = addNextChapter(room, currchapterid + 1);
+            var isNext = addNextChapter(room, nextc);
             if(isNext){
-                currid.val(currchapterid + 1);
+                currid.val(nextc);
                 isLoading = false;
                 waitnextchapter.hide();
             }
@@ -87,8 +91,8 @@ $(function(){
             //修改全局变量
             document.title = chapter.title;
             var nexta = $('#next');
-            $('#preC').attr('href', '/content/' +room +'/' + str(chapterid-1));
-            nexta.attr('href', '/content/'+room +'/' + str(chapterid + 1));
+	    $('#preC').attr('href', '/content/' +room +'/' + chapter.prec[1]);
+            nexta.attr('href', '/content/'+room +'/' + chapter.nextc[1]);
             //修改地址栏
             var stateObject = {};
             $('#title').text(title);

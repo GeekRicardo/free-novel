@@ -30,7 +30,7 @@ class Spider():
                 headers.append(l.strip())
             return random.choice(headers)
 
-    def request(self, url, proxy=True):
+    def request(self, url, proxy=False):
         try:
             res = None
             requests.packages.urllib3.disable_warnings()
@@ -49,4 +49,4 @@ class Spider():
             return None
 
     def getProxy(self):
-        return "http://localhost:1089"
+        return "http://localhost:10809"

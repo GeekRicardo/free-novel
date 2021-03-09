@@ -13,7 +13,8 @@ from flask import request, render_template, make_response, send_from_directory, 
 from flask import current_app
 
 from txt.main import main
-from txt import db, redis, cache
+from txt import db, redis#, cache
+from functools import lru_cache
 from txt.models import User, Chapter, TXT, Catalog
 from txt.spiders import xsbiqugeSpider
 from txt.spiders.xsbiqugeSpider import XBQGSpider
@@ -145,7 +146,8 @@ def getcatalog(room):
     return render_template('index.html', msg='无此小说')
 
 
-@cache.memoize()
+#@cache.memoize()
+@lru_cache()
 def getcatabyspider(room):
     return xbqgSpider.getcatalogs(room)
 
