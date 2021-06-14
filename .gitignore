@@ -2,3 +2,6 @@ __pycache__
 .vscode
 */static/txt
 *.log
+*github
+*gitlab
+cache

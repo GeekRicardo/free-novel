@@ -19,6 +19,8 @@ from txt.models import User, Chapter, TXT, Catalog
 from txt.spiders import xsbiqugeSpider
 from txt.spiders.xsbiqugeSpider import XBQGSpider
 
+import pdb
+
 xbqgSpider = XBQGSpider()
 
 @main.route('/', methods=['GET', 'POST'])
@@ -106,8 +108,9 @@ def searchTxt():
 @main.route('/catalog/<room>', endpoint='getcatalog', methods=['GET', 'POST'])
 def getcatalog(room):
     txt = db.session.query(TXT).filter_by(url=room).first()
-    if txt:
-        catalogs = db.session.query(Catalog.room, Catalog.title).filter_by(txtid=room)
+    catalogs = db.session.query(Catalog.room, Catalog.title).filter_by(txtid=room) if txt else None
+    # pdb.set_trace()
+    if catalogs and len(list(catalogs)) > 0:
         # history = redis.get(str(room))
         c = [(cl.title.strip(), cl.room) for cl in catalogs]
         if request.method == 'GET':

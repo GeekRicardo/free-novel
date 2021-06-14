@@ -3,5 +3,11 @@ flask_sqlalchemy
 flask_dropzone
 flask-migrate==2.5.3
 flask-script==2.0.6
-flasgger
+#flasgger
 loguru
+gunicorn
+flask_caching
+redis
+requests
+bs4
+tqdm

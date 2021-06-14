@@ -47,7 +47,7 @@ $(function(){
         var scrollHeight = $(document).height();
         var windowHeight = $(window).height();
         var restHeight = scrollHeight - scrollTop - windowHeight;
-        if (restHeight <= 100 && isLoading == false) {
+        if (restHeight <= 200 && isLoading == false) {
             isLoading = true;
             waitnextchapter.show();
             var currid = $('#currid');
@@ -58,7 +58,7 @@ $(function(){
                 isLoading = false;
                 waitnextchapter.hide();
             }
-        }else if(restHeight > 100 && isLoading == true){
+        }else if(restHeight > 200 && isLoading == true){
             isLoading = false;
         }
     }
@@ -82,8 +82,10 @@ $(function(){
             }
             setDayStyle(isDay);
 
+            show_or_hide_tool_bar();
+
             // 删除上上上上章前面的div
-            while($('.content').length > 10){
+            while($('.content').length > 2){
                 $($('.content')[0]).remove();
                 $($('h3')[0]).remove();
             }
@@ -96,7 +98,7 @@ $(function(){
             //修改地址栏
             var stateObject = {};
             $('#title').text(title);
-            var newUrl = "/content/" + room + "/" + (chapterid + 1);
+            var newUrl = "/content/" + room + "/" + (parseInt(chapterid) + 1);
             //修改从项目名后开始
             history.pushState(stateObject,title,newUrl);
             return true;
@@ -229,10 +231,11 @@ $(function(){
                     success: function(data){
                         var ul = $($('.catalog>ul')[0]);
                         ul.find("li").remove();
+                        var thisChapter = window.location.pathname.split("/")[3];
                         for(var i=0; i<data.catalogs.length;i++){
-                            var li = '<a href="/content/'+room+'/' + data.catalogs[i][0] + '"><li class="list-group-item" style="background-color:black">' + data.catalogs[i][1] + '</li></a>';
-                            if(data.his == data.catalogs[i][0]){
-                                li = '<a id="curr" ><li class="list-group-item  active">' + data.catalogs[i][1] + '</li></a>';
+                            var li = '<a href="/content/'+room+'/' + data.catalogs[i][1] + '"><li class="list-group-item" style="background-color:black">' + data.catalogs[i][0] + '</li></a>';
+                            if(thisChapter == data.catalogs[i][1]){
+                                li = '<a id="curr" ><li class="list-group-item  active">' + data.catalogs[i][0] + '</li></a>';
                             }
                             ul.append($(li));
                         }
@@ -273,7 +276,9 @@ function breakDebugger(){
     }
 }
 function show_or_hide_tool_bar(){
-    $('.content').click(function(){
+    var contents = $(".content");
+    contents.unbind("click");
+    contents.click(function(){
         if($('.mainoper').is(':hidden')){
             $('.mainoper').show();
         }else{//否则

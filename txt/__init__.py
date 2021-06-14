@@ -14,7 +14,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_dropzone import Dropzone
 from flask_caching import Cache
-from flasgger import Swagger
+#from flasgger import Swagger
 from redis import Redis
 
 from config import config
@@ -34,10 +34,10 @@ cache = Cache(config={
 redis = Redis('localhost', db=7, decode_responses=True)
 
 # swagger config
-swagger_config = Swagger.DEFAULT_CONFIG
-swagger_config['title'] = 'txt api 傻瓜式用法' # 配置大标题
-swagger_config['description'] = 'txt api usage' # 配置公共描述内容
-swagger_config['host'] = 'swagger.txt.sshug.cn' # 请求域名
+# swagger_config = Swagger.DEFAULT_CONFIG
+# swagger_config['title'] = 'txt api 傻瓜式用法' # 配置大标题
+# swagger_config['description'] = 'txt api usage' # 配置公共描述内容
+# swagger_config['host'] = 'swagger.txt.sshug.cn' # 请求域名
 
 # swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
 # swagger_config['swagger_ui_standalone_preset_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js'
@@ -52,7 +52,7 @@ def create_app(config_name):
     db.init_app(app)
     cache.init_app(app)
     dropzone.init_app(app)
-    Swagger(app, config=swagger_config)
+    # Swagger(app, config=swagger_config)
     # 附加路由和自定义的错误页面
     from txt.main import main as main_bluepoint
     app.register_blueprint(main_bluepoint, url_prefix='/')
